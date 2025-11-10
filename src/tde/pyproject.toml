@@ -1,6 +1,6 @@
 [project]
 name = "tde"
-version = "0.1.1"
+version = "0.1.2"
 description = "Technical Debt Extractor - Run dotnet format and output diagnostics in TOON format"
 readme = "../../README.md"
 authors = [

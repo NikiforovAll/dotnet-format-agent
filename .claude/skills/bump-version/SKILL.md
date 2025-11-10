@@ -24,7 +24,7 @@ Use this skill when:
 Execute the `bump_version.py` script from the workspace root with the bump type:
 
 ```bash
-python bump-version/scripts/bump_version.py <major|minor|patch>
+python .claude/skills/bump-version/scripts/bump_version.py <major|minor|patch>
 ```
 
 ### Bump Types
@@ -47,17 +47,17 @@ All pyproject.toml files are kept in sync with the same version number. The CHAN
 
 Bump patch version (0.1.0 → 0.1.1):
 ```bash
-python bump-version/scripts/bump_version.py patch
+python .claude/skills/bump-version/scripts/bump_version.py patch
 ```
 
 Bump minor version (0.1.0 → 0.2.0):
 ```bash
-python bump-version/scripts/bump_version.py minor
+python .claude/skills/bump-version/scripts/bump_version.py minor
 ```
 
 Bump major version (0.1.0 → 1.0.0):
 ```bash
-python bump-version/scripts/bump_version.py major
+python .claude/skills/bump-version/scripts/bump_version.py major
 ```
 
 ## Workflow
@@ -84,7 +84,7 @@ python bump-version/scripts/bump_version.py major
 
 3. **Execute script**: Run with the user-confirmed bump type
    ```bash
-   python bump-version/scripts/bump_version.py <patch|minor|major>
+   python .claude/skills/bump-version/scripts/bump_version.py <patch|minor|major>
    ```
 
 4. **Verify changes**: Check that all files were updated correctly
@@ -92,7 +92,39 @@ python bump-version/scripts/bump_version.py major
    - CHANGELOG.md should have a new dated section for the version
    - New empty `[Unreleased]` section should be at the top
 
-5. **Commit**: Commit the version bump changes if appropriate
+5. **Update changelog with recent changes**: After the version bump, automatically update the `[Unreleased]` section
+   - Use `git status` and `git diff --stat` to review what changed in the repository
+   - Check for new files in `.claude/` or other directories
+   - Update `CHANGELOG.md` [Unreleased] section with appropriate entries under categories:
+     - **Added**: New files, features, or functionality
+     - **Changed**: Modifications to existing functionality
+     - **Removed**: Deleted files or removed functionality
+   - Document the changes clearly and concisely
+   - Example entries:
+     - `- Claude Code settings configuration (`.claude/settings.json`)`
+     - `- Reorganized bump-version skill to follow Claude Code structure`
+
+6. **Provide instructions to user**: Display the following instructions for completing the release:
+   ```
+   To complete the version bump:
+
+   1. Review the changes:
+      git status
+      git diff CHANGELOG.md
+
+   2. Commit the version bump:
+      git add .
+      git commit -m "chore: bump version to X.Y.Z"
+
+   3. Create a git tag:
+      git tag vX.Y.Z
+
+   4. Push changes and tag:
+      git push origin main
+      git push origin vX.Y.Z
+   ```
+
+   Replace `X.Y.Z` with the actual version number that was bumped to.
 
 ## Changelog Management
 
