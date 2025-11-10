@@ -2,8 +2,8 @@
 
 import anyio
 import click
-import logging
 import os
+from pathlib import Path
 
 from claude_agent_sdk import (
     ClaudeAgentOptions,
@@ -12,49 +12,31 @@ from claude_agent_sdk import (
     TextBlock,
     ResultMessage
 )
+from prompty import load
 
 from .agent import techdebt_server
+from .logging_config import setup_logging
 
 
-def setup_logging() -> str:
-    """Configure logging with file and console handlers.
+def load_system_prompt() -> str:
+    """Load system prompt from prompty file.
 
     Returns:
-        Path to the log file
+        System prompt text extracted from the prompty file
     """
-    import tempfile
-    from logging.handlers import RotatingFileHandler
+    prompty_path = Path(__file__).parent / "system_prompt.prompty"
+    prompty_data = load(str(prompty_path))
 
-    log_level = os.getenv("TDA_LOG_LEVEL", "INFO")
-    log_dir = tempfile.gettempdir()
-    log_file = os.path.join(log_dir, "tda.log")
+    # Extract the system prompt from the Prompty object
+    # The prompty.load returns a Prompty object with a content attribute
+    content = prompty_data.content
 
-    # Clear any existing handlers
-    logging.root.handlers.clear()
+    # Remove the "system:" prefix if present
+    # Prompty format includes "system:" as a section marker in markdown
+    if content.startswith("system:"):
+        content = content[7:].strip()  # Remove "system:" and leading whitespace
 
-    # Create handlers
-    file_handler = RotatingFileHandler(
-        log_file,
-        maxBytes=5 * 1024 * 1024,  # 5 MB
-        backupCount=3
-    )
-    console_handler = logging.StreamHandler()
-
-    # Set format
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(logging.Formatter('%(levelname)s - %(name)s - %(message)s'))
-
-    # Set level on handlers
-    file_handler.setLevel(logging.DEBUG)  # Log everything to file
-    console_handler.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-
-    # Configure root logger
-    logging.root.setLevel(logging.DEBUG)  # Capture all levels
-    logging.root.addHandler(file_handler)
-    logging.root.addHandler(console_handler)
-
-    return log_file
+    return content
 
 
 @click.command()
@@ -90,6 +72,12 @@ def main(query: str, cwd: str):
 
 async def run_agent(query: str, cwd: str):
     """Run the agent with the given query."""
+    custom_instructions = load_system_prompt()
+
+    # Note: The SDK's append field doesn't support multiline strings
+    # Convert to single line by collapsing whitespace
+    single_line_instructions = " ".join(custom_instructions.split())
+
     options = ClaudeAgentOptions(
         mcp_servers={"techdebt": techdebt_server},
         allowed_tools=[
@@ -97,7 +85,12 @@ async def run_agent(query: str, cwd: str):
             "mcp__techdebt__extract_analyzers_diagnostics"
         ],
         cwd=cwd,
-        permission_mode="acceptEdits"
+        permission_mode="acceptEdits",
+        system_prompt={
+            "type": "preset",
+            "preset": "claude_code",
+            "append": single_line_instructions
+        }
     )
 
     async with ClaudeSDKClient(options=options) as client:

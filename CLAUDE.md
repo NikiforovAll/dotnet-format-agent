@@ -49,6 +49,11 @@ techdebt-agent/
 - Tools call tde modules directly (not subprocess)
 - MCP server created via `create_sdk_mcp_server()`
 - Workspace dependency on tde ensures code reuse
+- System prompt defined in `system_prompt.prompty` using Microsoft Prompty format
+- `prompty` library loads and parses the system prompt at runtime
+- System prompt uses `SystemPromptPreset` with `append` to preserve base Claude Code behavior
+- **Important**: `append` field doesn't support multiline strings; prompts are collapsed to single line
+- For `claude-agent-sdk` documentation, use Context7: `/anthropics/claude-agent-sdk-python`
 
 **Data Flow:**
 ```
