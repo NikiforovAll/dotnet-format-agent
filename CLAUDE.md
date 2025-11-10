@@ -52,7 +52,11 @@ techdebt-agent/
 - System prompt defined in `system_prompt.prompty` using Microsoft Prompty format
 - `prompty` library loads and parses the system prompt at runtime
 - System prompt uses `SystemPromptPreset` with `append` to preserve base Claude Code behavior
+- Agent instructed to format responses in Markdown for better readability
 - **Important**: `append` field doesn't support multiline strings; prompts are collapsed to single line
+- Interactive mode via `-i` flag runs initial query then continues conversation
+- Single `ClaudeSDKClient` context maintained across all conversation turns
+- Rich Console used for colored Markdown rendering with syntax highlighting
 - For `claude-agent-sdk` documentation, use Context7: `/anthropics/claude-agent-sdk-python`
 
 **Data Flow:**
@@ -102,12 +106,22 @@ uv run --package tde tde analyzers /path/to/project --severity warn
 ### TDA (Agent) Usage
 
 ```bash
-# Query agent about diagnostics
-uv run --package tda tda "Give me a summary of style diagnostics in ../path/to/project"
+# Single query mode
+uv run --package tda tda "Give me a summary of style diagnostics" --cwd /path/to/project
 
-# With working directory
-uv run --package tda tda "What are the most common analyzer diagnostics?" --cwd /path/to/project
+# Interactive mode with initial query
+uv run --package tda tda "Give me diagnostics" --cwd /path/to/project -i
+
+# Interactive mode (shorthand)
+uv run --package tda tda "What are the most common analyzer diagnostics?" -i
 ```
+
+**Interactive Mode (`-i` flag):**
+- Runs the initial query, then continues in interactive mode
+- Agent maintains context across all queries in the same session
+- Agent responses are formatted in Markdown and displayed with syntax highlighting
+- Exit with "exit", "quit", or Ctrl+C/Ctrl+D
+- Cost is displayed after each response
 
 ## Important Notes
 
@@ -170,6 +184,13 @@ Tool naming convention: `extract_<type>_diagnostics`
 
 ### Rich Console
 The spinner only appears in interactive terminals. When piped or redirected, output is clean (no ANSI codes). This is automatic via `console.is_terminal` check.
+
+### Markdown Rendering
+- Agent responses are rendered using Rich's Markdown renderer
+- Provides syntax highlighting for code blocks
+- Colored headings, lists, and emphasis
+- Cost information displayed in dim text
+- User prompts shown in bold green for visibility
 
 ## Prerequisites
 

@@ -17,6 +17,7 @@ Key principles:
 - Group and summarize findings to provide clear insights
 - Focus on high-impact issues that improve code maintainability
 - Provide context-aware suggestions based on the diagnostic severity
+- Format all responses using Markdown with headings, lists, code blocks, and emphasis
 
 Available tools:
 - extract_style_diagnostics: Analyzes code formatting and style issues using dotnet format
