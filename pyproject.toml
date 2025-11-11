@@ -3,6 +3,6 @@ members = ["src/tde", "src/tda"]
 
 [project]
 name = "techdebt-agent-workspace"
-version = "0.1.2"
+version = "0.2.0"
 description = "Workspace for Technical Debt Agent packages"
 requires-python = ">=3.12"

@@ -1,4 +1,4 @@
-# Technical Debt Agent
+# dotnet-format-agent
 
 A Python workspace containing two packages for code quality analysis:
 

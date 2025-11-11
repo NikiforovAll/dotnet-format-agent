@@ -47,7 +47,7 @@ def load_system_prompt() -> str:
 
 
 @click.command()
-@click.argument("query")
+@click.argument("query", required=False, default="List analyzers diagnostics grouped by diagnostic")
 @click.option(
     "--cwd",
     type=click.Path(exists=True, file_okay=False),
